@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from '@nestjs/common';
 import { CharactersService } from './characters.service';
 import { Character } from '@prisma/client';
 
@@ -13,8 +13,13 @@ export class CharactersController {
   }
 
   @Get()
-  findAll() {
-    return this.charactersService.findAll();
+  findAll(
+    @Query('page') page = 1, 
+    @Query('limit') limit = 10,
+    @Query('name') name?: string, // Query para el filtro por nombre
+    @Query('status') status?: string, // Query para el filtro por estado
+  ) {
+    return this.charactersService.findAll(+page, +limit, name, status);
   }
 
   @Get(':id')
