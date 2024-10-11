@@ -14,14 +14,33 @@ export class ParticipationService {
     });
   }
 
-  // Obtener todas las participaciones
-  async findAll(): Promise<EpisodeCharacter[]> {
-    return this.prisma.episodeCharacter.findMany({
+  // Obtener todas las participaciones con filtrado y paginación
+  async findAll(page: number, limit: number, characterName?: string, episodeName?: string): Promise<{ data: EpisodeCharacter[]; total: number; page: number; lastPage: number }> {
+    const filter = {
+      ...(characterName && { character: { name: { contains: characterName } } }),
+      ...(episodeName && { episode: { name: { contains: episodeName } } }),
+    };
+
+    const participations = await this.prisma.episodeCharacter.findMany({
+      where: filter,
+      skip: (page - 1) * limit, // Desplazamiento
+      take: limit, // Cantidad de resultados
       include: {
         character: true, // Incluye detalles del personaje
         episode: true, // Incluye detalles del episodio
       },
     });
+
+    const total = await this.prisma.episodeCharacter.count({
+      where: filter, // Contar según los filtros
+    });
+
+    return {
+      data: participations,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit), // Calcular última página
+    };
   }
 
   // Obtener una participación específica por ID

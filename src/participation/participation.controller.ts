@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ParticipationService } from './participation.service';
 import { EpisodeCharacter } from '@prisma/client';
 
@@ -13,10 +13,15 @@ export class ParticipationController {
     return this.participationService.create(createParticipationDto);
   }
 
-  // Obtener todas las participaciones
+  // Obtener todas las participaciones con filtrado y paginación
   @Get()
-  async findAll() {
-    return this.participationService.findAll();
+  async findAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('characterName') characterName?: string,
+    @Query('episodeName') episodeName?: string,
+  ) {
+    return this.participationService.findAll(+page, +limit, characterName, episodeName);
   }
 
   // Obtener una participación específica

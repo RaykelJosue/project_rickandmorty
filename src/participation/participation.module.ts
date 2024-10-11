@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { ParticipationService } from './participation.service';
 import { ParticipationController } from './participation.controller';
