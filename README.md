@@ -12,5 +12,3 @@ y Dotenv.
 * 2. Instalar NestJS y sus dependencias
 npm install
 npm install -g @nestjs/cli
-
-```diff
