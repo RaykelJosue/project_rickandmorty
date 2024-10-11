@@ -3,8 +3,8 @@ Dependecias usadas
 NestJS,
 PalJS,
 Prisma, (base de datos) para migrar después a PostgreSQL
-Axios,
-Dotenv,
+Axios
+y Dotenv.
 
 1. Clonar el repositorio
 
