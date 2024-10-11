@@ -14,12 +14,16 @@ export class CharactersController {
 
   @Get()
   findAll(
-    @Query('page') page = 1, 
-    @Query('limit') limit = 10,
-    @Query('name') name?: string, // Query para el filtro por nombre
-    @Query('status') status?: string, // Query para el filtro por estado
+    @Query('page') page: string = '1', // Asegurar que siempre sea un string y por defecto '1'
+    @Query('limit') limit: string = '10', // Lo mismo para el límite
+    @Query('name') name?: string, 
+    @Query('status') status?: string,
   ) {
-    return this.charactersService.findAll(+page, +limit, name, status);
+    // Aseguramos que page y limit sean positivos
+    const pageNumber = Math.max(parseInt(page, 10), 1); 
+    const limitNumber = Math.max(parseInt(limit, 10), 1);
+
+    return this.charactersService.findAll(pageNumber, limitNumber, name, status);
   }
 
   @Get(':id')
