@@ -1,53 +1,42 @@
 /* eslint-disable prettier/prettier */
+/* RECORDATORIO: En esta rama de filter-pagination-episodes, cambié el directorio de
+ ../prisma.service a ..src/prisma.service y me funcionó.*/
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../src/prisma.service';
 import { Episode } from '@prisma/client';
-import axios from 'axios';
 
 @Injectable()
 export class EpisodesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Omit<Episode, 'createdAt'>) {
+  async create(data: Episode) {
     return this.prisma.episode.create({
       data,
     });
   }
 
-  // Método para importar episodios desde la API de Rick and Morty
-  async importEpisodes() {
-    try {
-      const response = await axios.get('https://rickandmortyapi.com/api/episode');
-      const episodes = response.data.results;
+  async findAll(page: number, limit: number, name?: string, air_date?: string) {
+    const whereClause = {
+      AND: [
+        name ? { name: { contains: name } } : {},
+        air_date ? { air_date: { equals: air_date } } : {},
+      ],
+    };
 
-      const episodePromises = episodes.map(async (episode) => {
-        // Verificar si el episodio ya existe
-        const existingEpisode = await this.prisma.episode.findUnique({
-          where: { id: episode.id },
-        });
+    const episodes = await this.prisma.episode.findMany({
+      where: whereClause,
+      skip: (page - 1) * limit, // Calcula el desplazamiento
+      take: limit, // Número de elementos a retornar
+    });
 
-        if (!existingEpisode) {
-          // Solo crear el episodio si no existe
-          return this.create({
-            id: episode.id,
-            name: episode.name,
-            air_date: episode.air_date,
-            episode: episode.episode,
-          });
-        }
-      });
+    const total = await this.prisma.episode.count({ where: whereClause }); // Cuenta el total de episodios filtrados
 
-      await Promise.all(episodePromises);
-      return { message: 'Episodios importados exitosamente' };
-    } catch (error) {
-      console.error('Error al importar episodios:', error);
-      throw new Error('No se pudieron importar los episodios');
-    }
-  }
-
-  // Métodos CRUD adicionales
-  async findAll() {
-    return this.prisma.episode.findMany();
+    return {
+      data: episodes,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit), // Calcula el total de páginas
+    };
   }
 
   async findOne(id: number) {

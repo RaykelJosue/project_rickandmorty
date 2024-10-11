@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from '@nestjs/common';
 import { EpisodesService } from './episodes.service';
 import { Episode } from '@prisma/client';
 
@@ -7,14 +7,19 @@ import { Episode } from '@prisma/client';
 export class EpisodesController {
   constructor(private readonly episodesService: EpisodesService) {}
 
-  @Post('import')
-  async import() {
-    return this.episodesService.importEpisodes();
+  @Post()
+  create(@Body() episodeData: Episode) {
+    return this.episodesService.create(episodeData);
   }
 
   @Get()
-  findAll() {
-    return this.episodesService.findAll();
+  findAll(
+    @Query('page') page = 1, 
+    @Query('limit') limit = 10,
+    @Query('name') name?: string,
+    @Query('air_date') air_date?: string
+  ) {
+    return this.episodesService.findAll(+page, +limit, name, air_date);
   }
 
   @Get(':id')
