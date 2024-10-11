@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// Modelo para Personajes
+model Character {
+  id          Int       @id @default(autoincrement())
+  name        String
+  status      String
+  species     String
+  type        String?
+  gender      String
+  origin      String
+  location    String
+  image       String
+  episodes    EpisodeCharacter[]
+  createdAt   DateTime  @default(now())
+}
+
+// Modelo para Episodios
+model Episode {
+  id          Int       @id @default(autoincrement())
+  name        String
+  air_date    String
+  episode     String
+  characters  EpisodeCharacter[]
+  createdAt   DateTime  @default(now())
+}
+
+// Modelo para la participación de personajes en episodios
+model EpisodeCharacter {
+  id          Int       @id @default(autoincrement())
+  characterId Int
+  episodeId   Int
+  start_time  String
+  end_time    String
+
+  character   Character @relation(fields: [characterId], references: [id])
+  episode     Episode   @relation(fields: [episodeId], references: [id])
+}
+
+// Modelo para Tipos de Estatus
+model StatusType {
+  id          Int       @id @default(autoincrement())
+  type        String
+  statuses    Status[]
+}
+
+// Modelo para Estatus
+model Status {
+  id          Int       @id @default(autoincrement())
+  name        String
+  typeId      Int
+
+  type        StatusType @relation(fields: [typeId], references: [id])
+}
+
+// Modelo para Categorías
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  subcategories Subcategory[]
+}
+
+// Modelo para Subcategorías
+model Subcategory {
+  id          Int       @id @default(autoincrement())
+  name        String
+  categoryId  Int
+
+  category    Category   @relation(fields: [categoryId], references: [id])
+}
